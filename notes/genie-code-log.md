@@ -11,3 +11,11 @@
 - Result: transactions JSON (3,333), customers CSV (300), franchises CSV (48), one data file each
 - Lessons: "plan first, then approve" works well; Genie defaulted to /Workspace/Shared, so review paths;
   ~11 min end to end, mostly serverless start-up + approvals
+
+
+  ## Step 10 – Bronze layer
+- Prompt: plan first; approved with 1 change (return counts via dbutils.notebook.exit, since prints aren't in run output)
+- Genie: wrote src/01_bronze.py → imported to user folder → serverless run → fetched counts from run output
+- Result: bronze_transactions 3,333 · bronze_customers 300 · bronze_franchises 48
+- Design: file globs skip Spark marker files; _source_file + _ingested_at metadata; CSV columns kept as strings (cast in silver)
+- Lesson: Genie remembered earlier corrections (user folder, params only in job) without being told again
