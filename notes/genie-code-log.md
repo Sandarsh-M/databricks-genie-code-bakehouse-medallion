@@ -19,3 +19,10 @@
 - Result: bronze_transactions 3,333 · bronze_customers 300 · bronze_franchises 48
 - Design: file globs skip Spark marker files; _source_file + _ingested_at metadata; CSV columns kept as strings (cast in silver)
 - Lesson: Genie remembered earlier corrections (user folder, params only in job) without being told again
+
+## Step 12 – Silver layer
+- Prompt: inspect bronze columns first, then plan; approved with 2 changes (null_dateTime check, drop email/phone/address)
+- Genie: wrote src/02_silver.py → first run failed (Spark Connect incompatibility in card masking) → fixed the code itself → reran
+- Result: silver_sales_enriched 3,333 · silver_sales_rejected 0
+- Design: typed columns (timestamp, decimal), masked card (****1234), prefixed customer_/franchise_ columns, reject_reason column
+- Lesson: serverless = Spark Connect; not every PySpark function behaves the same. Genie diagnosed and fixed it without help
