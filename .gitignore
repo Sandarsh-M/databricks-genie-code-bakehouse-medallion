@@ -218,3 +218,9 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Databricks local config and secrets (never commit)
+.databricks/
+.databrickscfg
+.env
+*.log
