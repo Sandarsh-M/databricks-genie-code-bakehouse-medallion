@@ -26,3 +26,11 @@
 - Result: silver_sales_enriched 3,333 · silver_sales_rejected 0
 - Design: typed columns (timestamp, decimal), masked card (****1234), prefixed customer_/franchise_ columns, reject_reason column
 - Lesson: serverless = Spark Connect; not every PySpark function behaves the same. Genie diagnosed and fixed it without help
+
+
+## Step 14 – Gold layer
+- Prompt: plan first; approved as is (first plan with no changes needed)
+- Genie: wrote src/03_gold.py → imported → serverless run
+- Result: revenue_by_franchise 48 · daily_product_sales 102 (17 days × 6 products) · top_customers 10
+- Check: revenue reconciled across silver and both gold tables = 66,471.00 (matches the source)
+- Lesson: reconciliation runs before writing, so a mismatch fails the run without touching gold tables
