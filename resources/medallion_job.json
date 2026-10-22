@@ -1,0 +1,76 @@
+{
+  "name": "bakehouse-medallion-pipeline",
+  "timeout_seconds": 3600,
+  "parameters": [
+    {
+      "name": "catalog",
+      "default": "<CATALOG>"
+    },
+    {
+      "name": "schema",
+      "default": "<SCHEMA>"
+    },
+    {
+      "name": "volume",
+      "default": "<VOLUME>"
+    }
+  ],
+  "tasks": [
+    {
+      "task_key": "land_raw_files",
+      "notebook_task": {
+        "notebook_path": "<WORKSPACE_USER_FOLDER>/00_land_raw_files",
+        "source": "WORKSPACE"
+      },
+      "environment_key": "default"
+    },
+    {
+      "task_key": "bronze",
+      "depends_on": [
+        {
+          "task_key": "land_raw_files"
+        }
+      ],
+      "notebook_task": {
+        "notebook_path": "<WORKSPACE_USER_FOLDER>/01_bronze",
+        "source": "WORKSPACE"
+      },
+      "environment_key": "default"
+    },
+    {
+      "task_key": "silver",
+      "depends_on": [
+        {
+          "task_key": "bronze"
+        }
+      ],
+      "notebook_task": {
+        "notebook_path": "<WORKSPACE_USER_FOLDER>/02_silver",
+        "source": "WORKSPACE"
+      },
+      "environment_key": "default"
+    },
+    {
+      "task_key": "gold",
+      "depends_on": [
+        {
+          "task_key": "silver"
+        }
+      ],
+      "notebook_task": {
+        "notebook_path": "<WORKSPACE_USER_FOLDER>/03_gold",
+        "source": "WORKSPACE"
+      },
+      "environment_key": "default"
+    }
+  ],
+  "environments": [
+    {
+      "environment_key": "default",
+      "spec": {
+        "client": "4",
+        "dependencies": []
+      }
+    }
+  ]
+}
