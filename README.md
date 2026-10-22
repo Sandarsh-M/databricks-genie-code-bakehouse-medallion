@@ -24,6 +24,13 @@ samples.bakehouse ─► Volume files ─► Bronze ─► Silver ─► Gold
 
 All four run as one serverless job (`resources/medallion_job.json`), manual trigger only.
 
+
+## Dashboard
+
+An AI/BI dashboard on the gold tables, built by Genie Code in the Databricks workspace from a single prompt. Total revenue matches the pipeline's 66,471.
+
+![Dashboard](screenshots/dashboard.png)
+
 ## How Genie Code helped
 
 - **Planned before acting** and asked approval for every Databricks command
