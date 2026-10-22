@@ -1,36 +1,20 @@
-## Step 7 – Explore samples.bakehouse
-- Prompt: list tables in samples.bakehouse with row counts (read-only)
-- Genie: tried `databricks genie ask` → empty → fell back to SQL via CLI → verified with COUNT(*)
-- Result: 6 tables; picked sales_transactions (3,333), sales_customers (300), sales_franchises (48)
-- Lesson: Genie verifies instead of trusting table stats
+# Genie Code Log
 
+Each step: **ask for a plan → review → approve with changes → Genie builds, runs and verifies.**
 
-## Step 8 – Land raw files in a UC Volume
-- Prompt: plan first (no execution), then approved with 2 changes (user folder instead of Shared, coalesce(1))
-- Genie: wrote src/00_land_raw_files.py → imported to my workspace user folder → serverless one-time job → verified files
-- Result: transactions JSON (3,333), customers CSV (300), franchises CSV (48), one data file each
-- Lessons: "plan first, then approve" works well; Genie defaulted to /Workspace/Shared, so review paths;
-  ~11 min end to end, mostly serverless start-up + approvals
+| # | Step | My changes to the plan | What happened |
+|---|---|---|---|
+| 1 | Setup | none | Sandbox couldn't read the macOS Keychain → signed in with plaintext token storage |
+| 2 | Explore data | none | `genie ask` returned nothing → Genie switched to SQL and re-checked counts |
+| 3 | Land files | 2: my user folder, one file per folder | 3,333 / 300 / 48 rows in a Volume |
+| 4 | Bronze | 1: return counts via `notebook.exit` | 3,333 / 300 / 48 |
+| 5 | Silver | 2: null-date check, drop PII columns | First run failed (Spark Connect) → Genie fixed and reran |
+| 6 | Gold | 0 | 48 / 102 / 10; revenue 66,471.00 |
+| 7 | Job | 1: one-hour timeout | 4 tasks, all succeeded; real values kept out of the repo |
 
+## Takeaways
 
-  ## Step 10 – Bronze layer
-- Prompt: plan first; approved with 1 change (return counts via dbutils.notebook.exit, since prints aren't in run output)
-- Genie: wrote src/01_bronze.py → imported to user folder → serverless run → fetched counts from run output
-- Result: bronze_transactions 3,333 · bronze_customers 300 · bronze_franchises 48
-- Design: file globs skip Spark marker files; _source_file + _ingested_at metadata; CSV columns kept as strings (cast in silver)
-- Lesson: Genie remembered earlier corrections (user folder, params only in job) without being told again
-
-## Step 12 – Silver layer
-- Prompt: inspect bronze columns first, then plan; approved with 2 changes (null_dateTime check, drop email/phone/address)
-- Genie: wrote src/02_silver.py → first run failed (Spark Connect incompatibility in card masking) → fixed the code itself → reran
-- Result: silver_sales_enriched 3,333 · silver_sales_rejected 0
-- Design: typed columns (timestamp, decimal), masked card (****1234), prefixed customer_/franchise_ columns, reject_reason column
-- Lesson: serverless = Spark Connect; not every PySpark function behaves the same. Genie diagnosed and fixed it without help
-
-
-## Step 14 – Gold layer
-- Prompt: plan first; approved as is (first plan with no changes needed)
-- Genie: wrote src/03_gold.py → imported → serverless run
-- Result: revenue_by_franchise 48 · daily_product_sales 102 (17 days × 6 products) · top_customers 10
-- Check: revenue reconciled across silver and both gold tables = 66,471.00 (matches the source)
-- Lesson: reconciliation runs before writing, so a mismatch fails the run without touching gold tables
+- **Plan first.** Reviewing code and commands before running caught most issues.
+- **Check defaults.** Paths and outputs were sensible, but not always right for my setup.
+- **It debugs itself** and **verifies its own results.**
+- **Approvals take time**, but every Databricks change stayed visible.
